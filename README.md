@@ -31,7 +31,7 @@ To build an AI-enabled online examination platform that ensures examination inte
 
 1.  **Clone the repository:**
     bash
-    git clone [https://github.com/YOUR_USERNAME/Secure-Exam-System.git](https://github.com/YOUR_USERNAME/Secure-Exam-System.git)
+    git clone https://github.com/bloodsight006/Secure-Exam-System.git
     cd Secure-Exam-System
     
 
