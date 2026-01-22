@@ -5,27 +5,27 @@ To build an AI-enabled online examination platform that ensures examination inte
 
 Key Features
 Role-Based Access: Secure login for Students and Faculty.
-* AI Anti-Cheat System:
+I) AI Anti-Cheat System:
     * Detects tab switching and window minimization.
     * Tracks focus loss and logs malpractice incidents.
     * Enforces full-screen mode constraints.
-* ML Performance Analytics:
+II) ML Performance Analytics:
     * Uses **Linear Regression (Scikit-Learn)** to predict future scores based on response time patterns.
     * Visualizes skill gaps and score trends using **Chart.js**.
-* Faculty Dashboard:
+III) Faculty Dashboard:
     * Create and publish dynamic exams.
     * Real-time monitoring of malpractice flags.
     * "Hardest Question" analysis to identify learning gaps.
     * Export results to CSV.
-* Gamification and Rewards:
+IV) Gamification and Rewards:
     * Student Leaderboards for top performers.
     * Auto-generated, printable **Certificates** upon passing.
 
  Tech Stack : 
-* Backend: Python 3.13.5, FastAPI, Uvicorn, SQLite3
-* Frontend: HTML5, CSS3 (Glassmorphism UI), Vue.js (Reactive UI), Chart.js
-* Machine Learning: Scikit-Learn, NumPy
-* Tools: VS Code, Git
+1) Backend: Python 3.13.5, FastAPI, Uvicorn, SQLite3
+2) Frontend: HTML5, CSS3 (Glassmorphism UI), Vue.js (Reactive UI), Chart.js
+3) Machine Learning: Scikit-Learn, NumPy
+4) Tools: VS Code, Git
 
  Installation & Setup :
 
