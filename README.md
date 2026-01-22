@@ -61,6 +61,8 @@ To build an AI-enabled online examination platform that ensures examination inte
 | **Student** | student1 | pass1 |
 
 ##  Screenshots
-*(Add your screenshots here later)*
+<img width="1500" height="818" alt="image" src="https://github.com/user-attachments/assets/6047d954-6b1b-4af1-99d9-3a66dff404e9" />
+
+
 
 This is Built for Hackathon 2026 
