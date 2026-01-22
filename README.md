@@ -1,66 +1,66 @@
-## Hackathon Project Title : Secure Intelligent Online Examination System
+Hackathon Project Title : Secure Intelligent Online Examination System
 
-## Project Overview
+Project Overview :
 To build an AI-enabled online examination platform that ensures examination integrity,minimizes malpractice, and enhances assessment quality through intelligent content retrieval,automated evaluation, adaptive testing, and post-exam analytics.
 
-## Key Features
-* **Role-Based Access:** Secure login for Students and Faculty.
-* **AI Anti-Cheat System:**
+Key Features
+Role-Based Access: Secure login for Students and Faculty.
+* AI Anti-Cheat System:
     * Detects tab switching and window minimization.
     * Tracks focus loss and logs malpractice incidents.
     * Enforces full-screen mode constraints.
-* **ML Performance Analytics:**
+* ML Performance Analytics:
     * Uses **Linear Regression (Scikit-Learn)** to predict future scores based on response time patterns.
     * Visualizes skill gaps and score trends using **Chart.js**.
-* **Faculty Dashboard:**
+* Faculty Dashboard:
     * Create and publish dynamic exams.
     * Real-time monitoring of malpractice flags.
     * "Hardest Question" analysis to identify learning gaps.
     * Export results to CSV.
-* **Gamification and Rewards:**
+* Gamification and Rewards:
     * Student Leaderboards for top performers.
     * Auto-generated, printable **Certificates** upon passing.
 
-## Tech Stack
-* **Backend:** Python 3.13.5, FastAPI, Uvicorn, SQLite3
-* **Frontend:** HTML5, CSS3 (Glassmorphism UI), Vue.js (Reactive UI), Chart.js
-* **Machine Learning:** Scikit-Learn, NumPy
-* **Tools:** VS Code, Git
+ Tech Stack : 
+* Backend: Python 3.13.5, FastAPI, Uvicorn, SQLite3
+* Frontend: HTML5, CSS3 (Glassmorphism UI), Vue.js (Reactive UI), Chart.js
+* Machine Learning: Scikit-Learn, NumPy
+* Tools: VS Code, Git
 
-##  Installation & Setup
+ Installation & Setup :
 
-1.  **Clone the repository:**
+1.  Clone the repository:
     bash
     git clone https://github.com/bloodsight006/Secure-Exam-System.git
     cd Secure-Exam-System
     
 
-2.  **Install Dependencies:**
+2.  Install Dependencies:
     bash
     pip install -r requirements.txt
     
 
-3.  **Initialize Database:**
+3.  Initialize Database:
     bash
     python database.py
     
 
-4.  **Run the Server:**
+4.  Run the Server:
     bash
     uvicorn main:app --reload
     
 
-5.  **Access the App:**
+5.  Access the App:
     Open your browser and go to `http://127.0.0.1:8000`
 
-##  Default Credentials
+ Default Credentials: 
 
 | Role | Username | Password |
 | :--- | :--- | :--- |
 | **Teacher** | teacher1 | admin123 |
 | **Student** | student1 | pass1 |
 
-##  Screenshots
+Screenshots
 <img width="1500" height="818" alt="image" src="https://github.com/user-attachments/assets/6047d954-6b1b-4af1-99d9-3a66dff404e9" />
 
 
