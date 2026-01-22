@@ -5,6 +5,7 @@ To build an AI-enabled online examination platform that ensures examination inte
 
 Key Features
 Role-Based Access: Secure login for Students and Faculty.
+
 I) AI Anti-Cheat System:
      Detects tab switching and window minimization.
      Tracks focus loss and logs malpractice incidents.
@@ -13,13 +14,13 @@ II) ML Performance Analytics:
      Uses **Linear Regression (Scikit-Learn)** to predict future scores based on response time patterns.
      Visualizes skill gaps and score trends using **Chart.js**.
 III) Faculty Dashboard:
-     Create and publish dynamic exams.
-     Real-time monitoring of malpractice flags.
-     "Hardest Question" analysis to identify learning gaps.
-     Export results to CSV.
+Create and publish dynamic exams.
+Real-time monitoring of malpractice flags.
+"Hardest Question" analysis to identify learning gaps.
+Export results to CSV.
 IV) Gamification and Rewards:
-     Student Leaderboards for top performers.
-     Auto-generated, printable **Certificates** upon passing.
+Student Leaderboards for top performers.
+Auto-generated, printable **Certificates** upon passing.
 
  Tech Stack : 
 
