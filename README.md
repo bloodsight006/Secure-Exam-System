@@ -77,7 +77,9 @@ Screenshots
 
 <img width="1917" height="1015" alt="image" src="https://github.com/user-attachments/assets/2eb24b19-3842-4439-979d-e86a7a874d1b" />
 
+<img width="1900" height="697" alt="image" src="https://github.com/user-attachments/assets/0865d6cf-299b-44bd-9045-64ba93002142" />
 
+<img width="1887" height="521" alt="image" src="https://github.com/user-attachments/assets/ea95d0ba-40db-44a6-85c7-2b78a9c8f27b" />
 
 
 This is a sample protoype website Built for Hackathon 2026. 
