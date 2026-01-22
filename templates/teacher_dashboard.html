@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Faculty Portal</title>
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        :root { --sidebar: #0f172a; --primary: #3b82f6; }
+        body { margin: 0; font-family: 'Segoe UI', sans-serif; background: #f8fafc; display: flex; height: 100vh; overflow: hidden; }
+        .sidebar { width: 260px; background: var(--sidebar); color: white; padding: 1.5rem; display: flex; flex-direction: column; }
+        .nav-link { padding: 12px; margin-bottom: 5px; border-radius: 8px; cursor: pointer; color: #94a3b8; display:flex; gap:10px; }
+        .nav-link.active { background: var(--primary); color: white; }
+        .main { flex: 1; padding: 2rem; overflow-y: auto; }
+        .card { background: white; padding: 1.5rem; border-radius: 12px; margin-bottom: 2rem; }
+        input, select { width: 100%; padding: 10px; margin-bottom: 10px; border: 1px solid #ccc; border-radius: 5px; }
+        table { width: 100%; border-collapse: collapse; }
+        th, td { padding: 10px; text-align: left; border-bottom: 1px solid #eee; }
+        .flag { background: #fee2e2; color: #991b1b; padding: 4px; border-radius: 4px; font-weight: bold; font-size: 0.8rem; }
+        .clean { background: #dcfce7; color: #166534; padding: 4px; border-radius: 4px; font-weight: bold; font-size: 0.8rem; }
+    </style>
+</head>
+<body>
+<div id="app" style="display:flex; width:100%;">
+    {% raw %}
+    <nav class="sidebar">
+        <h2 style="color:#60a5fa">🛡️ Admin</h2>
+        <div class="nav-link" :class="{active: view === 'dashboard'}" @click="view = 'dashboard'">📊 Overview</div>
+        <div class="nav-link" :class="{active: view === 'create'}" @click="view = 'create'">➕ Create Exam</div>
+        <div class="nav-link" :class="{active: view === 'analytics'}" @click="loadCharts">📈 ML Analytics</div>
+        <div class="nav-link" @click="logout" style="margin-top:auto; color:#f87171;">🚪 Logout</div>
+    </nav>
+
+    <main class="main">
+        <div v-if="view === 'dashboard'">
+            <h1>Dashboard</h1>
+            <div class="card">
+                <h3>Recent Submissions</h3>
+                <table>
+                    <thead><tr><th>Student</th><th>Score</th><th>Status</th><th>AI Log</th></tr></thead>
+                    <tbody>
+                        <tr v-for="s in stats.submissions">
+                            <td>{{ s.student_name }}</td>
+                            <td>{{ s.score }}/{{ s.total_questions }}</td>
+                            <td><span :class="s.tab_switches > 1 ? 'flag' : 'clean'">{{ s.tab_switches > 1 ? 'Malpractice' : 'Clean' }}</span></td>
+                            <td>{{ s.anomaly_score }}</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div v-if="view === 'create'">
+            <div class="card">
+                <h2>Create New Exam</h2>
+                <input v-model="newExam.title" placeholder="Exam Title">
+                <div v-for="(q, i) in newExam.questions" style="background:#f1f5f9; padding:10px; margin-bottom:10px;">
+                    <input v-model="q.text" placeholder="Question">
+                    <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px;">
+                        <input v-model="q.options[0]" placeholder="A"><input v-model="q.options[1]" placeholder="B">
+                        <input v-model="q.options[2]" placeholder="C"><input v-model="q.options[3]" placeholder="D">
+                    </div>
+                    <select v-model="q.correct"><option>A</option><option>B</option><option>C</option><option>D</option></select>
+                </div>
+                <button @click="addQ" style="padding:10px;">+ Add Question</button> 
+                <button @click="submitExam" style="padding:10px; background:#3b82f6; color:white; border:none;">Publish</button>
+            </div>
+        </div>
+
+        <div v-show="view === 'analytics'">
+            <div class="card">
+                <h2>ML & Analytics</h2>
+                <div style="display:grid; grid-template-columns: 1fr 1fr; gap:20px;">
+                    <div style="height: 300px; position: relative;">
+                        <canvas id="malpracticeChart"></canvas>
+                    </div>
+                    <div style="height: 300px; position: relative;">
+                        <canvas id="scoreDistChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+    {% endraw %}
+</div>
+<script>
+    const { createApp } = Vue;
+    createApp({
+        data() { return { view: 'dashboard', stats: { submissions: [], exams: [] }, newExam: { title: '', creator: 'Teacher', questions: [] } } },
+        mounted() { this.fetchStats(); },
+        methods: {
+            async fetchStats() { const res = await fetch('/api/teacher_stats'); this.stats = await res.json(); },
+            addQ() { this.newExam.questions.push({ text: '', options: ['','','',''], correct: 'A' }); },
+            async submitExam() {
+                await fetch('/api/create_exam', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify(this.newExam) });
+                alert("Published!"); this.newExam.title=""; this.newExam.questions=[]; this.fetchStats(); this.view='dashboard';
+            },
+            logout() { window.location.href="/"; },
+            
+            loadCharts() {
+                this.view = 'analytics';
+                setTimeout(() => {
+                    // Malpractice Chart
+                    new Chart(document.getElementById('malpracticeChart'), {
+                        type: 'doughnut',
+                        data: { labels: ['Clean', 'Malpractice'], datasets: [{ data: [12, 3], backgroundColor: ['#10b981', '#ef4444'] }] },
+                        options: { maintainAspectRatio: false } // KEY FIX
+                    });
+                    // Score Chart
+                    new Chart(document.getElementById('scoreDistChart'), {
+                        type: 'line',
+                        data: { labels: ['Jan', 'Feb', 'Mar'], datasets: [{ label: 'Avg Score', data: [75, 82, 88], borderColor: '#3b82f6' }] },
+                        options: { maintainAspectRatio: false } // KEY FIX
+                    });
+                }, 100);
+            }
+        }
+    }).mount('#app');
+</script>
+</body>
+</html>

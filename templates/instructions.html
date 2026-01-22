@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Instructions</title>
+    <style>body{font-family:sans-serif; text-align:center; padding-top:50px; background:#f3f4f6;}</style>
+</head>
+<body>
+    <div style="background:white; width:500px; margin:auto; padding:30px; border-radius:10px; box-shadow:0 4px 10px rgba(0,0,0,0.1);">
+        <h1>⚠️ Instructions</h1>
+        <ul style="text-align:left;">
+            <li>No Tab Switching.</li>
+            <li>No Minimizing.</li>
+            <li>Full Screen enforced.</li>
+        </ul>
+        <input type="checkbox" id="agree" onchange="document.getElementById('btn').disabled = !this.checked"> I Agree
+        <br><br>
+        <button id="btn" disabled onclick="start()" style="padding:10px 20px; background:blue; color:white; border:none; cursor:pointer;">Start Exam</button>
+    </div>
+    <script>
+        function start() {
+            const params = new URLSearchParams(window.location.search);
+            const id = params.get('exam_id');
+            window.location.href = `/exam?id=${id}`;
+        }
+    </script>
+</body>
+</html>

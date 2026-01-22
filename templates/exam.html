@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Secure Exam</title>
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    <style>
+        :root { --primary: #2563eb; --danger: #ef4444; --bg: #f3f4f6; }
+        body { margin: 0; font-family: 'Segoe UI', sans-serif; background: var(--bg); user-select: none; }
+        .layout { display: flex; height: 100vh; }
+        .sidebar { width: 280px; background: white; padding: 2rem; border-right: 1px solid #e5e7eb; }
+        .timer-display { background: #111827; color: white; padding: 1.5rem; border-radius: 12px; text-align: center; margin-bottom: 2rem; font-size: 2rem; font-weight: bold; }
+        .exam-area { flex: 1; padding: 3rem; overflow-y: auto; }
+        .question-block { background: white; padding: 2rem; border-radius: 12px; margin-bottom: 1.5rem; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); }
+        .submit-btn { width: 100%; padding: 1rem; background: var(--primary); color: white; font-weight: bold; border: none; border-radius: 8px; cursor: pointer; }
+        .security-overlay { position: fixed; top: 0; left: 0; width: 100%; background: var(--danger); color: white; padding: 1rem; text-align: center; font-weight: bold; display: none; }
+    </style>
+</head>
+<body oncontextmenu="return false" oncopy="return false" onpaste="return false">
+<div id="app">
+    {% raw %}
+    <div id="alert-box" class="security-overlay">⚠️ SECURITY ALERT: Focus Lost! Incident Logged.</div>
+    <div class="layout">
+        <div class="sidebar">
+            <div class="timer-display">{{ formattedTime }}</div>
+            <p><strong>Candidate:</strong> {{ username }}</p>
+            <p><small>System Proctoring Active</small></p>
+        </div>
+        <div class="exam-area">
+            <h1>Final Assessment</h1>
+            <div class="question-block" v-for="(q, index) in questions" :key="q.id" @mouseover="startTracking(q.id)">
+                <h3>Q{{ index + 1 }}. {{ q.question_text }}</h3>
+                <div v-for="opt in ['a','b','c','d']">
+                    <label style="display:flex; align-items:center; padding:8px; cursor:pointer;">
+                        <input type="radio" :name="q.id" :value="opt.toUpperCase()" @change="recordAnswer(q.id, opt.toUpperCase())" style="width:20px; height:20px; margin-right:10px;">
+                        {{ q['option_'+opt] }}
+                    </label>
+                </div>
+            </div>
+            <button class="submit-btn" @click="submitExam">Submit Assessment</button>
+        </div>
+    </div>
+    {% endraw %}
+</div>
+<script>
+    const { createApp } = Vue;
+    createApp({
+        data() { return { username: localStorage.getItem("currentStudent") || "Guest", questions: [], answers: {}, timeLeft: 600, tabSwitches: 0, timeLog: {}, lastActiveQ: null, examId: null, isSubmitting: false } },
+        computed: { formattedTime() { const m = Math.floor(this.timeLeft / 60); const s = this.timeLeft % 60; return `${m}:${s < 10 ? '0' + s : s}`; } },
+        async mounted() {
+            const params = new URLSearchParams(window.location.search);
+            this.examId = params.get('id');
+            const res = await fetch(`/api/exam/${this.examId}`);
+            this.questions = await res.json();
+            this.questions.forEach(q => this.timeLog[q.id] = 0);
+            
+            setInterval(() => { if(this.timeLeft > 0) this.timeLeft--; else this.submitExam(); }, 1000);
+            setInterval(() => { if(this.lastActiveQ && !this.isSubmitting) { if(!this.timeLog[this.lastActiveQ]) this.timeLog[this.lastActiveQ]=0; this.timeLog[this.lastActiveQ]+=1; } }, 1000);
+            setInterval(() => { if(!document.hasFocus() && !this.isSubmitting) this.flagCheat(); }, 1000);
+            window.addEventListener('blur', () => { if(!this.isSubmitting) this.flagCheat(); });
+            document.addEventListener('visibilitychange', () => { if(document.hidden && !this.isSubmitting) this.flagCheat(); });
+        },
+        methods: {
+            startTracking(id) { this.lastActiveQ = id; },
+            recordAnswer(id, val) { this.answers[id] = val; },
+            flagCheat() {
+                if(this.isSubmitting) return;
+                this.tabSwitches++;
+                document.getElementById('alert-box').style.display = 'block';
+                setTimeout(() => { document.getElementById('alert-box').style.display = 'none'; }, 2000);
+            },
+            async submitExam() {
+                this.isSubmitting = true;
+                await fetch('/api/submit', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ exam_id: this.examId, username: this.username, answers: this.answers, tab_switches: this.tabSwitches, time_log: this.timeLog }) });
+                alert("Submitted Successfully!"); window.location.href = "/student/dashboard";
+            }
+        }
+    }).mount('#app');
+</script>
+</body>
+</html>

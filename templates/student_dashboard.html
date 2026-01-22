@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Student Portal</title>
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root { --sidebar-bg: #1e293b; --primary: #3b82f6; --bg: #f1f5f9; }
+        body { margin: 0; font-family: 'Inter', sans-serif; background: var(--bg); display: flex; height: 100vh; overflow: hidden;}
+        
+        /* --- PRINT FIX FOR CERTIFICATE --- */
+@media print {
+    body * {
+        visibility: hidden; /* Hide everything */
+    }
+    .modal-overlay, .modal-overlay * {
+        visibility: visible; /* Show only the modal */
+    }
+    .modal-overlay {
+        position: absolute;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        background: white; /* Remove gray background */
+    }
+    .modal {
+        box-shadow: none; /* Remove shadow for print */
+        border: none;
+    }
+    .btn {
+        display: none; /* Hide the "Print" button on the paper */
+    }
+}
+        /* Layout */
+        .sidebar { width: 250px; background: var(--sidebar-bg); color: white; padding: 1.5rem; display: flex; flex-direction: column; }
+        .nav-item { padding: 12px; margin-bottom: 8px; border-radius: 8px; cursor: pointer; color: #94a3b8; display: flex; gap: 10px; }
+        .nav-item.active { background: rgba(255,255,255,0.1); color: white; }
+        .main { flex: 1; padding: 2rem; overflow-y: auto; }
+        
+        /* Cards */
+        .card { background: white; padding: 1.5rem; border-radius: 12px; margin-bottom: 1.5rem; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
+        .exam-item { display: flex; justify-content: space-between; align-items: center; padding: 15px; background: #f8fafc; border-radius: 8px; margin-bottom: 10px; border-left: 4px solid var(--primary); }
+        
+        /* Buttons */
+        .btn { padding: 6px 12px; border-radius: 6px; border: none; cursor: pointer; font-weight: 600; margin-left: 5px; }
+        .btn-go { background: var(--primary); color: white; }
+        .btn-outline { background: white; border: 1px solid #ccc; }
+        
+        /* Modals */
+        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); display: flex; justify-content: center; align-items: center; z-index: 100; backdrop-filter: blur(2px); }
+        .modal { background: white; padding: 2rem; border-radius: 12px; width: 600px; max-height: 80vh; overflow-y: auto; }
+        
+        /* Certificate */
+        .cert-border { border: 10px double #333; padding: 30px; text-align: center; }
+        .cert-title { font-size: 2.5rem; font-family: serif; color: #1e3a8a; }
+    </style>
+</head>
+<body>
+<div id="app" style="display:flex; width:100%;">
+    {% raw %}
+    <nav class="sidebar">
+        <h2 style="color:#60a5fa">StudentPortal</h2>
+        <div class="nav-item" :class="{active: view === 'home'}" @click="view = 'home'">🏠 Dashboard</div>
+        <div class="nav-item" :class="{active: view === 'analytics'}" @click="loadAnalytics">📈 Performance AI</div>
+        <div class="nav-item" @click="logout" style="margin-top:auto; color:#ef4444;">🚪 Sign Out</div>
+    </nav>
+
+    <main class="main">
+        <h2>Welcome, {{ username }}</h2>
+
+        <div v-if="view === 'home'">
+            <div class="card">
+                <h3>🚀 Exams</h3>
+                <div v-if="exams.length === 0">No exams yet.</div>
+                <div v-for="e in exams" class="exam-item">
+                    <div><b>{{ e.title }}</b><br><small>{{ e.created_at }}</small></div>
+                    
+                    <div v-if="isCompleted(e.id)">
+                        <span style="color:green; font-weight:bold; margin-right:10px;">{{ getScore(e.id) }}</span>
+                        <button class="btn btn-outline" @click="openReview(e.id)">📝 Review</button>
+                        <button class="btn btn-outline" @click="openCert(e)">🏆 Cert</button>
+                    </div>
+                    <button v-else class="btn btn-go" @click="takeExam(e.id)">Start Test</button>
+                </div>
+            </div>
+        </div>
+
+        <div v-show="view === 'analytics'">
+            <div class="card">
+                <h3>🤖 AI Analysis</h3>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+                    <div style="height: 300px;"><canvas id="scoreChart"></canvas></div>
+                    <div style="height: 300px;"><canvas id="skillChart"></canvas></div>
+                </div>
+                <p style="margin-top:20px; background:#e0f2fe; padding:10px; border-radius:5px;">
+                    <b>AI Prediction:</b> Based on your speed, you are likely to score <b>{{ prediction }}%</b> next time.
+                </p>
+            </div>
+        </div>
+
+        <div v-if="showReview" class="modal-overlay" @click.self="showReview=false">
+            <div class="modal">
+                <h2>📝 Exam Review</h2>
+                <div v-for="(q, i) in reviewData" :key="i" style="margin-bottom:15px; padding:10px; border:1px solid #eee; border-radius:5px;">
+                    <p><b>Q{{i+1}}: {{ q.question }}</b></p>
+                    <div v-if="q.is_correct" style="color:green;">✅ You answered: {{ q.selected }}</div>
+                    <div v-else>
+                        <div style="color:red;">❌ You answered: {{ q.selected }}</div>
+                        <div style="color:green;">✅ Correct answer: {{ q.correct }}</div>
+                    </div>
+                </div>
+                <button class="btn btn-outline" @click="showReview=false">Close</button>
+            </div>
+        </div>
+
+        <div v-if="showCert" class="modal-overlay" @click.self="showCert=false">
+            <div class="modal" style="width:700px;">
+                <div class="cert-border">
+                    <h1 class="cert-title">Certificate of Achievement</h1>
+                    <p>This certifies that</p>
+                    <h2>{{ username }}</h2>
+                    <p>has successfully passed</p>
+                    <h3>{{ certExamName }}</h3>
+                    <p>Date: {{ new Date().toLocaleDateString() }}</p>
+                </div>
+                <button class="btn btn-go" onclick="window.print()" style="margin-top:10px; width:100%;">Print</button>
+            </div>
+        </div>
+
+    </main>
+    {% endraw %}
+</div>
+
+<script>
+    const { createApp } = Vue;
+    createApp({
+        data() {
+            return {
+                view: 'home', username: localStorage.getItem('currentStudent'),
+                exams: [], history: [], prediction: 0,
+                showReview: false, reviewData: [],
+                showCert: false, certExamName: ''
+            }
+        },
+        async mounted() {
+            const res1 = await fetch('/api/exams'); this.exams = await res1.json();
+            const res2 = await fetch(`/api/history/${this.username}`); this.history = await res2.json();
+        },
+        methods: {
+            takeExam(id) { window.location.href = `/instructions?exam_id=${id}`; },
+            isCompleted(id) { return this.history.some(h => h.exam_id === id); },
+            getScore(id) { const h = this.history.find(r => r.exam_id === id); return h ? `${h.score}/${h.total_questions}` : ''; },
+            logout() { window.location.href = "/"; },
+            
+            async openReview(id) {
+                const res = await fetch(`/api/review/${id}/${this.username}`);
+                this.reviewData = await res.json();
+                this.showReview = true;
+            },
+            openCert(e) {
+                this.certExamName = e.title;
+                this.showCert = true;
+            },
+            
+            async loadAnalytics() {
+                this.view = 'analytics';
+                const p = await fetch('/api/analytics/predict');
+                const pData = await p.json();
+                this.prediction = pData.predicted_score;
+                
+                setTimeout(() => {
+                    new Chart(document.getElementById('scoreChart'), {
+                        type: 'bar',
+                        data: {
+                            labels: this.history.map(h => h.exam_title),
+                            datasets: [{ label: 'Score', data: this.history.map(h => h.score), backgroundColor: '#3b82f6' }]
+                        },
+                        options: { maintainAspectRatio: false }
+                    });
+                    new Chart(document.getElementById('skillChart'), {
+                        type: 'radar',
+                        data: {
+                            labels: ['Speed', 'Accuracy', 'Focus'],
+                            datasets: [{ label: 'Skills', data: [80, 90, 70], borderColor: '#10b981' }]
+                        },
+                        options: { maintainAspectRatio: false }
+                    });
+                }, 100);
+            }
+        }
+    }).mount('#app');
+</script>
+</body>
+</html>
