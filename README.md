@@ -65,6 +65,19 @@ Auto-generated, printable **Certificates** upon passing.
 Screenshots
 <img width="1500" height="818" alt="image" src="https://github.com/user-attachments/assets/6047d954-6b1b-4af1-99d9-3a66dff404e9" />
 
+<img width="1918" height="1013" alt="image" src="https://github.com/user-attachments/assets/92025064-6a0d-4375-b1f3-a6b19e864fd9" />
+
+<img width="1912" height="1017" alt="image" src="https://github.com/user-attachments/assets/b642db4c-af18-4551-882d-18831f6195a3" />
+
+<img width="1917" height="913" alt="image" src="https://github.com/user-attachments/assets/03e17dc7-1f40-4140-85a8-27673e596642" />
+
+<img width="1912" height="957" alt="image" src="https://github.com/user-attachments/assets/709db1d5-0824-4bff-bd9a-ce657f2cab7f" />
+
+<img width="1917" height="915" alt="image" src="https://github.com/user-attachments/assets/661ed558-8e3c-49b6-b044-b824e3853f1c" />
+
+<img width="1917" height="1015" alt="image" src="https://github.com/user-attachments/assets/2eb24b19-3842-4439-979d-e86a7a874d1b" />
 
 
-This is Built for Hackathon 2026 
+
+
+This is a sample protoype website Built for Hackathon 2026. 
